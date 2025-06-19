@@ -1,0 +1,36 @@
+.image-upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.image-preview {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 16px;
+}
+
+.upload-button-container {
+  &.has-image {
+    margin-top: -30px;
+    z-index: 1;
+  }
+}
+
+ion-avatar {
+  width: 60px;
+  height: 60px;
+  
+  img {
+    object-fit: cover;
+  }
+}
+
+ion-item {
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+}

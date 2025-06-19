@@ -1,0 +1,175 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Pet Notes
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Pet Notes</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="ion-padding">
+    <!-- Pet Selection -->
+    <ion-item class="custom-item">
+      <ion-label position="stacked">Select Pet</ion-label>
+      <ion-select [(ngModel)]="selectedPetId" (ionChange)="onPetSelect()" placeholder="Choose a pet" class="custom-select">
+        <ion-select-option *ngFor="let pet of pets" [value]="pet.pet_id">
+          {{pet.name}}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <!-- Note Type Filter -->
+    <ion-item class="custom-item" *ngIf="selectedPetId">
+      <ion-label position="stacked">Filter by Type</ion-label>
+      <ion-select [(ngModel)]="selectedNoteType" (ionChange)="onNoteTypeChange()" class="custom-select">
+        <ion-select-option value="all">All Notes</ion-select-option>
+        <ion-select-option value="General">General</ion-select-option>
+        <ion-select-option value="Feeding">Feeding</ion-select-option>
+        <ion-select-option value="Vet">Vet</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <!-- Notes List -->
+    <div class="notes-container" *ngIf="selectedPetId">
+      <div class="note-card" *ngFor="let note of filteredNotes">
+        <div class="note-header">
+          <ion-chip [color]="getNoteTypeColor(note.note_type)">
+            {{note.note_type}}
+          </ion-chip>
+          <ion-button fill="clear" color="danger" (click)="deleteNote(note.note_id!)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </div>
+
+        <div class="note-content">
+          <p class="note-text">{{note.note_text}}</p>
+          <p class="note-date" *ngIf="note.note_date">{{note.note_date | date:'medium'}}</p>
+
+          <!-- Feeding Details -->
+          <div class="note-details" *ngIf="note.note_type === 'Feeding'">
+            <div class="detail-item" *ngIf="note.feeding_time">
+              <ion-icon name="time-outline"></ion-icon>
+              <span>{{note.feeding_time}}</span>
+            </div>
+            <div class="detail-item" *ngIf="note.food_type">
+              <ion-icon name="nutrition-outline"></ion-icon>
+              <span>{{note.food_type}}</span>
+            </div>
+            <div class="detail-item" *ngIf="note.portion_size">
+              <ion-icon name="scale-outline"></ion-icon>
+              <span>{{note.portion_size}}</span>
+            </div>
+          </div>
+
+          <!-- Vet Details -->
+          <div class="note-details" *ngIf="note.note_type === 'Vet'">
+            <div class="detail-item" *ngIf="note.appointment_date">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>{{note.appointment_date | date:'medium'}}</span>
+            </div>
+            <div class="detail-item" *ngIf="note.vet_name">
+              <ion-icon name="person-outline"></ion-icon>
+              <span>{{note.vet_name}}</span>
+            </div>
+            <div class="detail-item" *ngIf="note.purpose">
+              <ion-icon name="document-text-outline"></ion-icon>
+              <span>{{note.purpose}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="selectedPetId && filteredNotes.length === 0" class="ion-text-center ion-padding">
+      <p>No notes found. Add your first note!</p>
+    </div>
+  </div>
+
+  <!-- Add Note Button -->
+  <ion-fab *ngIf="selectedPetId" vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="setOpen(true)">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <!-- Add Note Modal -->
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="setOpen(false)">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Add New Note</ion-title>
+          <ion-button slot="end" fill="clear" (click)="setOpen(false)">Close</ion-button>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <form (ngSubmit)="createNote()">
+          <ion-item class="custom-item">
+            <ion-label position="stacked">Note Type</ion-label>
+            <ion-select [(ngModel)]="newNote.note_type" name="note_type" class="custom-select">
+              <ion-select-option value="General">General</ion-select-option>
+              <ion-select-option value="Feeding">Feeding</ion-select-option>
+              <ion-select-option value="Vet">Vet</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="custom-item">
+            <ion-label position="stacked">Note Text</ion-label>
+            <ion-textarea [(ngModel)]="newNote.note_text" name="note_text" rows="4" required></ion-textarea>
+          </ion-item>
+
+          <ion-item class="custom-item">
+            <ion-label position="stacked">Date</ion-label>
+            <ion-input type="date" [(ngModel)]="newNote.note_date" name="note_date"></ion-input>
+          </ion-item>
+
+          <!-- Feeding Specific Fields -->
+          <ng-container *ngIf="newNote.note_type === 'Feeding'">
+            <ion-item class="custom-item">
+              <ion-label position="stacked">Feeding Time</ion-label>
+              <ion-input type="time" [(ngModel)]="newNote.feeding_time" name="feeding_time"></ion-input>
+            </ion-item>
+
+            <ion-item class="custom-item">
+              <ion-label position="stacked">Food Type</ion-label>
+              <ion-input [(ngModel)]="newNote.food_type" name="food_type"></ion-input>
+            </ion-item>
+
+            <ion-item class="custom-item">
+              <ion-label position="stacked">Portion Size</ion-label>
+              <ion-input [(ngModel)]="newNote.portion_size" name="portion_size"></ion-input>
+            </ion-item>
+          </ng-container>
+
+          <!-- Vet Specific Fields -->
+          <ng-container *ngIf="newNote.note_type === 'Vet'">
+            <ion-item class="custom-item">
+              <ion-label position="stacked">Appointment Date</ion-label>
+              <ion-input type="date" [(ngModel)]="newNote.appointment_date" name="appointment_date"></ion-input>
+            </ion-item>
+
+            <ion-item class="custom-item">
+              <ion-label position="stacked">Vet Name</ion-label>
+              <ion-input [(ngModel)]="newNote.vet_name" name="vet_name"></ion-input>
+            </ion-item>
+
+            <ion-item class="custom-item">
+              <ion-label position="stacked">Purpose</ion-label>
+              <ion-input [(ngModel)]="newNote.purpose" name="purpose"></ion-input>
+            </ion-item>
+          </ng-container>
+
+          <ion-button expand="block" type="submit" [disabled]="!newNote.note_text" class="submit-button">
+            Add Note
+          </ion-button>
+        </form>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

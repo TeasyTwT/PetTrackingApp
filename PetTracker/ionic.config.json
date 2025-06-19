@@ -1,0 +1,7 @@
+{
+  "name": "PetTracker",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

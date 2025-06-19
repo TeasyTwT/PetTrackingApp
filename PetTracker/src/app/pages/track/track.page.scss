@@ -1,0 +1,35 @@
+.chart-container {
+  position: relative;
+  margin: 20px auto;
+  height: 40vh;
+  width: 100%;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+ion-segment {
+  --background: var(--ion-color-light);
+  border-radius: 0;
+
+  ion-segment-button {
+    --indicator-color: var(--ion-color-primary);
+    --color: var(--ion-color-medium);
+    --color-checked: var(--ion-color-primary);
+
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+}
+
+ion-list-header {
+  --background: var(--ion-color-light);
+  --color: var(--ion-color-dark);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 16px;
+}
